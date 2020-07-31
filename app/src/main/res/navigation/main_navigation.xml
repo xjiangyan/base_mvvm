@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/app_onefragment">
+
+    <fragment
+        android:id="@+id/app_onefragment"
+        android:name="com.example.base_mvvm.fragment.OneFragment"
+        android:label="OneFragment"
+        tools:layout="@layout/fragment_one">
+
+        <action
+            android:id="@+id/app_action_app_onefragment_to_app_twofragment"
+            app:destination="@id/app_twofragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/app_twofragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/app_twofragment"
+        android:name="com.example.base_mvvm.fragment.TwoFragment"
+        android:label="TwoFragment"
+        tools:layout="@layout/fragment_two">
+        <argument
+            android:name="intdata"
+            android:defaultValue="dgdfg"
+            app:argType="string"
+            app:nullable="false"></argument>
+    </fragment>
+    <fragment
+        android:id="@+id/threeFragment"
+        android:name="com.example.base_mvvm.fragment.ThreeFragment"
+        android:label="ThreeFragment"
+        tools:layout="@layout/fragment_three" />
+</navigation>

@@ -1,0 +1,158 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'org.greenrobot.greendao'
+
+apply plugin: 'androidx.navigation.safeargs'
+
+apply plugin: 'kotlin-kapt'
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+        includeCompileClasspath = true
+    }
+}
+
+android {
+
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+
+    defaultConfig {
+        applicationId rootProject.ext.android.applicationId
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+
+        ndk {
+            abiFilters "armeabi-v7a"/*, "x86"*/
+        }
+        resConfigs('zh-rCN')
+
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+
+
+    }
+
+    signingConfigs {
+//            debug {
+//                storeFile file("yinxin.jks")
+//                storePassword "www.yinxinos"
+//                keyAlias "yinxin1os"
+//                keyPassword "yinxinos"
+//            }
+        release {
+            storeFile file("yinxin.jks")
+            storePassword "www.yinxinos"
+            keyAlias "yinxin1os"
+            keyPassword "yinxinos"
+        }
+    }
+    buildTypes {
+        // 正式版本构建
+        release {
+            resValue("string", "app_name", "正式版")
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            zipAlignEnabled true // Zipalign优化
+            shrinkResources true // 移除无用的resource文件
+
+        }
+
+        // 开发版本构建
+        debug {
+            resValue("string", "app_name", "测试版")
+            minifyEnabled false
+            shrinkResources false // 移除无用的resource文件
+            zipAlignEnabled false // Zipalign优化
+
+        }
+
+    }
+
+
+    sourceSets {
+        main {
+            jni.srcDirs = []
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+
+    //打包后应用名称
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            def fileName
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                if (variant.buildType.name.equals('release')) {//如果是release包
+                    fileName = "hg_release_v${defaultConfig.versionName}.apk"
+                } else if (variant.buildType.name.equals('debug')) {//如果是debug包
+                    fileName = "hg_debug_v${defaultConfig.versionName}.apk"
+                }
+
+                outputFileName = fileName
+            }
+        }
+    }
+
+
+    //统一资源前缀,规范资源引用
+//    resourcePrefix "app_"
+    //开启dataBinding
+    dataBinding {
+        enabled true
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    
+
+    greendao {
+        //指定数据库schema版本号，迁移等操作会用到
+        schemaVersion 1
+        //DaoSession、DaoMaster以及所有实体类的dao生成的目录,默认为你的entity所在的包名
+        //daoPackage 包名
+        daoPackage 'com.example.base_mvvm.dao'
+
+        //这就是我们上面说到的自定义生成数据库文件的目录了，可以将生成的文件放到我们的java目录中，而不是build中，这样就不用额外的设置资源目录了
+        //工程路径
+        targetGenDir 'src/main/java'
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation rootProject.ext.androidx["junit"]
+    androidTestImplementation rootProject.ext.androidx["androidx.test.ext-junit"]
+    androidTestImplementation rootProject.ext.androidx["androidx.test.espresso:espresso-core"]
+    //组件中依赖阿里路由编译框架
+//    annotationProcessor rootProject.ext.dependencies["arouter-compiler"]
+//    annotationProcessor rootProject.ext.dependencies["glide-compiler"]
+    kapt rootProject.ext.dependencies["arouter-compiler"]
+    kapt rootProject.ext.dependencies["glide-compiler"]
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation project(path: ':library-base')
+
+    implementation "androidx.startup:startup-runtime:1.0.0-alpha01"
+//    implementation "androidx.paging:paging-runtime-ktx:2.1.0-rc01"
+//    implementation 'org.apache.activemq.examples.broker:paging:2.13.0'
+}
